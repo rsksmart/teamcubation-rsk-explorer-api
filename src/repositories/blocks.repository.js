@@ -72,6 +72,10 @@ export function getBlocksRepository (prismaClient) {
         }
       }
 
+      // clear pending transactions stuck on database
+      const oneHourAgo = Math.floor(new Date().getTime() / 1000) - 3600
+      transactionQueries.push(...txPendingRepository.deleteOne({ timestamp: { lte: oneHourAgo } }))
+
       // insert internal transactions
       for (const itx of internalTransactions) {
         transactionQueries.push(...internalTxRepository.insertOne(itx))
